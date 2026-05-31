@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(node --version && cat /Users/chisa/.npm/_logs/2026-05-31T10_52_26_445Z-debug-0.log 2>/dev/null | grep -A 5 \"gyp ERR\" | head -20)"
+    ]
+  }
+}
