@@ -29,6 +29,7 @@ export default function DayWorkouts({ date, workouts, names, onAdd, onDelete }) 
         <div className="flex flex-col gap-2">
           {dayWorkouts.map(w => {
             const wtype = WORKOUT_TYPES[w.type] ?? { label: w.type, emoji: '💪', color: '#9ca3af' };
+            const displayLabel = (w.type === 'OTHER' && w.custom_label) ? w.custom_label : wtype.label;
             const meta  = USER_META[w.user] ?? USER_META.chisa;
             const uName = names[w.user] ?? w.user;
 
@@ -43,7 +44,7 @@ export default function DayWorkouts({ date, workouts, names, onAdd, onDelete }) 
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-semibold text-white">{wtype.label}</span>
+                    <span className="text-sm font-semibold text-white">{displayLabel}</span>
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${meta.bgLight} ${meta.text}`}>
                       {uName}
                     </span>

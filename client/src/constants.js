@@ -5,17 +5,18 @@ export const WORKOUT_TYPES = {
   CROSSFIT:  { label: 'CrossFit',       points: 15, emoji: '⚡',  color: '#eab308' },
   RUNNING:   { label: 'Running',        points: 12, emoji: '🏃',  color: '#22c55e', distanceMode: true },
   SWIMMING:  { label: 'Swimming',       points: 12, emoji: '🏊',  color: '#38bdf8' },
-  HOME:      { label: 'Home Training',  points: 10, emoji: '🏠',  color: '#a855f7' },
-  KICKBOXING:{ label: 'Kickboxing',     points: 12, emoji: '🥊',  color: '#ef4444' },
+  HOME:      { label: 'Home Training',  points: 12, emoji: '🏠',  color: '#a855f7' },
+  KICKBOXING:{ label: 'Kickboxing',     points: 10, emoji: '🥊',  color: '#ef4444' },
   WALKING:   { label: 'Walking',        points:  8, emoji: '🚶',  color: '#84cc16', distanceMode: true },
+  OTHER:     { label: 'Other',          points: 10, emoji: '🏅',  color: '#94a3b8' },
 };
 
 export const DISTANCE_TYPES = ['RUNNING', 'WALKING'];
 export const DISTANCE_PTS_PER_KM = { RUNNING: 3, WALKING: 2 };
 
 export const USER_WORKOUT_TYPES = {
-  chisa:   ['HYROX', 'CROSSFIT', 'RUNNING', 'SWIMMING', 'WALKING'],
-  partner: ['HYROX', 'RUNNING', 'HOME', 'KICKBOXING', 'WALKING'],
+  chisa:   ['HYROX', 'CROSSFIT', 'RUNNING', 'SWIMMING', 'WALKING', 'OTHER'],
+  partner: ['HYROX', 'RUNNING', 'HOME', 'KICKBOXING', 'WALKING', 'OTHER'],
 };
 
 export const USER_META = {
@@ -102,4 +103,17 @@ export const COUPLE_LEVELS = [
 
 export function getCoupleLevel(combinedPoints) {
   return COUPLE_LEVELS.find(cl => combinedPoints >= cl.minPts) ?? COUPLE_LEVELS[COUPLE_LEVELS.length - 1];
+}
+
+export const DURATION_TIERS = [
+  { minMin: 90, bonus: 15, label: '90+ min' },
+  { minMin: 75, bonus: 12, label: '75+ min' },
+  { minMin: 60, bonus:  8, label: '60+ min' },
+  { minMin: 45, bonus:  5, label: '45+ min' },
+  { minMin: 30, bonus:  2, label: '30+ min' },
+  { minMin:  0, bonus:  0, label: ''         },
+];
+
+export function getDurationBonus(minutes) {
+  return (DURATION_TIERS.find(t => minutes >= t.minMin) ?? DURATION_TIERS[DURATION_TIERS.length - 1]).bonus;
 }

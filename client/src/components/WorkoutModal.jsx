@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { format, parseISO } from 'date-fns';
-import { WORKOUT_TYPES, USER_WORKOUT_TYPES, USER_META, DISTANCE_TYPES, DISTANCE_PTS_PER_KM } from '../constants.js';
+import { WORKOUT_TYPES, USER_WORKOUT_TYPES, USER_META, DISTANCE_TYPES, DISTANCE_PTS_PER_KM, getDurationBonus, DURATION_TIERS } from '../constants.js';
 
 export default function WorkoutModal({ date, names, onClose, onSave }) {
   const [user,       setUser]       = useState('chisa');
@@ -8,8 +8,9 @@ export default function WorkoutModal({ date, names, onClose, onSave }) {
   const [inputMode,  setInputMode]  = useState('time');   // 'time' | 'distance'
   const [duration,   setDuration]   = useState(60);
   const [distanceKm, setDistanceKm] = useState(5);
-  const [notes,      setNotes]      = useState('');
-  const [saving,     setSaving]     = useState(false);
+  const [notes,       setNotes]      = useState('');
+  const [customLabel, setCustomLabel] = useState('');
+  const [saving,      setSaving]     = useState(false);
 
   const availableTypes = USER_WORKOUT_TYPES[user];
   const selectedType   = WORKOUT_TYPES[type];
@@ -25,6 +26,7 @@ export default function WorkoutModal({ date, names, onClose, onSave }) {
   const handleTypeChange = (t) => {
     setType(t);
     if (!DISTANCE_TYPES.includes(t)) setInputMode('time');
+    if (t !== 'OTHER') setCustomLabel('');
   };
 
   const computePoints = () => {
@@ -32,7 +34,7 @@ export default function WorkoutModal({ date, names, onClose, onSave }) {
       const ptsPerKm = DISTANCE_PTS_PER_KM[type] ?? 2;
       return Math.max(selectedType.points, Math.round(Number(distanceKm) * ptsPerKm));
     }
-    return selectedType.points;
+    return selectedType.points + getDurationBonus(Number(duration));
   };
 
   const handleSubmit = async (e) => {
@@ -48,6 +50,7 @@ export default function WorkoutModal({ date, names, onClose, onSave }) {
       notes,
       points: pts,
       ...(isDistanceType && inputMode === 'distance' ? { distance_km: Number(distanceKm) } : {}),
+      ...(type === 'OTHER' && customLabel.trim() ? { custom_label: customLabel.trim() } : {}),
     });
   };
 
@@ -112,6 +115,21 @@ export default function WorkoutModal({ date, names, onClose, onSave }) {
             </div>
           </div>
 
+          {/* Custom label — only for Other */}
+          {type === 'OTHER' && (
+            <div>
+              <Label>What workout? <span className="text-orange-400">*</span></Label>
+              <input
+                type="text"
+                value={customLabel}
+                onChange={e => setCustomLabel(e.target.value)}
+                placeholder="e.g. Yoga, Tennis, Cycling…"
+                maxLength={40}
+                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/60 transition-colors"
+              />
+            </div>
+          )}
+
           {/* Time / Distance toggle — only for Running & Walking */}
           {isDistanceType && (
             <div>
@@ -140,6 +158,25 @@ export default function WorkoutModal({ date, names, onClose, onSave }) {
                 className="w-full accent-orange-500 cursor-pointer" />
               <div className="flex justify-between text-xs text-gray-600 mt-1">
                 <span>10 min</span><span>3 hrs</span>
+              </div>
+              {/* Duration bonus tiers */}
+              <div className="mt-3 flex gap-1 flex-wrap">
+                {DURATION_TIERS.filter(t => t.bonus > 0).reverse().map(t => {
+                  const active = Number(duration) >= t.minMin;
+                  const isCurrent = getDurationBonus(Number(duration)) === t.bonus;
+                  return (
+                    <span key={t.minMin}
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border transition-all ${
+                        isCurrent
+                          ? 'bg-amber-500/20 border-amber-500/60 text-amber-400'
+                          : active
+                          ? 'bg-gray-700 border-gray-600 text-gray-300'
+                          : 'bg-gray-800/50 border-gray-700/50 text-gray-600'
+                      }`}>
+                      {t.label} +{t.bonus}pt
+                    </span>
+                  );
+                })}
               </div>
             </div>
           ) : (

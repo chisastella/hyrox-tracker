@@ -33,6 +33,7 @@ db.exec(`
 `);
 
 try { db.exec('ALTER TABLE workouts ADD COLUMN distance_km REAL DEFAULT NULL'); } catch (_) {}
+try { db.exec('ALTER TABLE workouts ADD COLUMN custom_label TEXT DEFAULT NULL'); } catch (_) {}
 
 const upsertSetting = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');
 upsertSetting.run('name_chisa',   'Chisa');
@@ -46,12 +47,12 @@ app.get('/api/workouts', (_req, res) => {
 });
 
 app.post('/api/workouts', (req, res) => {
-  const { user, date, type, duration, notes, points, distance_km } = req.body;
+  const { user, date, type, duration, notes, points, distance_km, custom_label } = req.body;
   if (!user || !date || !type || !points)
     return res.status(400).json({ error: 'Missing required fields' });
   const result = db.prepare(
-    'INSERT INTO workouts (user,date,type,duration,notes,points,distance_km) VALUES(?,?,?,?,?,?,?)'
-  ).run(user, date, type, duration ?? 60, notes ?? '', points, distance_km ?? null);
+    'INSERT INTO workouts (user,date,type,duration,notes,points,distance_km,custom_label) VALUES(?,?,?,?,?,?,?,?)'
+  ).run(user, date, type, duration ?? 60, notes ?? '', points, distance_km ?? null, custom_label ?? null);
   res.json(db.prepare('SELECT * FROM workouts WHERE id=?').get(result.lastInsertRowid));
 });
 
