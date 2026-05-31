@@ -8,17 +8,11 @@ import StreakBanner from './components/StreakBanner.jsx';
 import ScoreBoard from './components/ScoreBoard.jsx';
 import CountdownTimer from './components/CountdownTimer.jsx';
 import SettingsModal from './components/SettingsModal.jsx';
+import Challenges from './components/Challenges.jsx';
 
-const API = '/api';
 
-async function apiFetch(path, opts) {
-  const res = await fetch(API + path, {
-    headers: { 'Content-Type': 'application/json' },
-    ...opts,
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
-}
+
+import { apiFetch } from "./api.js";
 
 export default function App() {
   const [workouts,     setWorkouts]     = useState([]);
@@ -31,6 +25,7 @@ export default function App() {
   const [celebration,  setCelebration]  = useState(null);
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState(null);
+  const [mainTab,      setMainTab]      = useState('score');
 
   const loadData = useCallback(async () => {
     try {
@@ -150,7 +145,24 @@ export default function App() {
       {/* Main content */}
       <main className="max-w-2xl mx-auto px-4 py-5 flex flex-col gap-4 pb-10">
         <StreakBanner workouts={workouts} names={names} avatars={avatars} />
-        <ScoreBoard  workouts={workouts} names={names} avatars={avatars} />
+        <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+          <div className="flex border-b border-gray-800">
+            {[['score', '🏆 Scoreboard'], ['challenges', '🎯 Challenges']].map(([val, label]) => (
+              <button key={val} onClick={() => setMainTab(val)}
+                className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 ${
+                  mainTab === val
+                    ? 'text-white border-orange-500 bg-orange-500/5'
+                    : 'text-gray-500 border-transparent hover:text-gray-300'
+                }`}>
+                {label}
+              </button>
+            ))}
+          </div>
+          {mainTab === 'score'
+            ? <ScoreBoard workouts={workouts} names={names} avatars={avatars} />
+            : <Challenges workouts={workouts} names={names} avatars={avatars} />
+          }
+        </div>
         <Calendar
           workouts={workouts}
           currentMonth={currentMonth}

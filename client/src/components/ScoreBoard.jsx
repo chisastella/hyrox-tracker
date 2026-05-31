@@ -3,7 +3,7 @@ import {
   format, startOfWeek, endOfWeek, startOfMonth, endOfMonth,
   subMonths, subWeeks,
 } from 'date-fns';
-import { USER_META, LEVELS, getLevel, getLevelProgress, getCoupleLevel } from '../constants.js';
+import { USER_META, LEVELS, getLevel, getLevelProgress } from '../constants.js';
 
 function filterWorkouts(workouts, tab) {
   const now = new Date();
@@ -51,17 +51,13 @@ export default function ScoreBoard({ workouts, names, avatars }) {
 
   const prev        = prevPeriodPts(workouts, tab);
   const changePct   = prev > 0 ? Math.round((combined / prev - 1) * 100) : null;
-  const periodLabel = tab === 'monthly'
-    ? format(new Date(), 'MMMM yyyy')
-    : tab === 'weekly' ? 'This Week' : 'All Time';
-
-  const coupleLevel = getCoupleLevel(chisaAll + partnerAll);
+  const periodLabel = tab === 'monthly' ? format(new Date(), 'MMMM yyyy') : 'This Week';
 
   return (
-    <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+    <div className="overflow-hidden">
       {/* Tabs */}
       <div className="flex border-b border-gray-800">
-        {[['weekly', 'Weekly'], ['monthly', 'Monthly'], ['total', 'All Time']].map(([val, label]) => (
+        {[['weekly', 'Weekly'], ['monthly', 'Monthly']].map(([val, label]) => (
           <button key={val} onClick={() => setTab(val)}
             className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 ${
               tab === val
@@ -83,26 +79,17 @@ export default function ScoreBoard({ workouts, names, avatars }) {
 
         <div className="h-px bg-gray-800 mb-4" />
 
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <div className="text-[11px] text-gray-500 uppercase tracking-wider mb-0.5">Couple Score</div>
-            <div className="flex items-baseline gap-1.5 flex-wrap">
-              <span className="text-2xl font-black text-white">{combined.toLocaleString()}</span>
-              <span className="text-sm text-gray-400">pts</span>
-              {changePct !== null && (
-                <span className={`text-xs font-bold ${changePct >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {changePct >= 0 ? '+' : ''}{changePct}%
-                  <span className="text-gray-600 font-normal ml-1">vs last {tab === 'monthly' ? 'month' : 'week'}</span>
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-2 bg-gray-800 px-3 py-2.5 rounded-xl flex-shrink-0">
-            <span className="text-xl leading-none">{coupleLevel.emoji}</span>
-            <div>
-              <div className="text-[10px] text-gray-500 uppercase tracking-wider leading-none mb-0.5">Couple Level</div>
-              <div className="text-xs font-bold text-white leading-none">{coupleLevel.name}</div>
-            </div>
+        <div>
+          <div className="text-[11px] text-gray-500 uppercase tracking-wider mb-0.5">Couple Score</div>
+          <div className="flex items-baseline gap-1.5 flex-wrap">
+            <span className="text-2xl font-black text-white">{combined.toLocaleString()}</span>
+            <span className="text-sm text-gray-400">pts</span>
+            {changePct !== null && (
+              <span className={`text-xs font-bold ${changePct >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                {changePct >= 0 ? '+' : ''}{changePct}%
+                <span className="text-gray-600 font-normal ml-1">vs last {tab === 'monthly' ? 'month' : 'week'}</span>
+              </span>
+            )}
           </div>
         </div>
       </div>
