@@ -31,9 +31,7 @@ export default function CelebrationPopup({ workout, names, onClose }) {
     fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
     fire(0.1, { spread: 120, startVelocity: 45 });
 
-    const timer = setTimeout(onClose, 5000);
     return () => {
-      clearTimeout(timer);
       confetti.reset();
     };
   }, []);

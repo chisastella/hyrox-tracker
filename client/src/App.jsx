@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { format } from 'date-fns';
 import Calendar from './components/Calendar.jsx';
 import DayWorkouts from './components/DayWorkouts.jsx';
@@ -9,9 +9,7 @@ import ScoreBoard from './components/ScoreBoard.jsx';
 import CountdownTimer from './components/CountdownTimer.jsx';
 import SettingsModal from './components/SettingsModal.jsx';
 import Challenges from './components/Challenges.jsx';
-
-
-
+import { WORKOUT_TYPES } from './constants.js';
 import { apiFetch } from "./api.js";
 
 export default function App() {
@@ -27,6 +25,11 @@ export default function App() {
   const [error,        setError]        = useState(null);
   const [mainTab,      setMainTab]      = useState('score');
 
+  // Refs for polling & notifications
+  const knownIds  = useRef(null);   // Set of workout IDs seen so far
+  const namesRef  = useRef(names);  // always-current names for notification text
+  useEffect(() => { namesRef.current = names; }, [names]);
+
   const loadData = useCallback(async () => {
     try {
       const [ws, settings] = await Promise.all([
@@ -34,6 +37,8 @@ export default function App() {
         apiFetch('/settings'),
       ]);
       setWorkouts(ws);
+      // Seed knownIds with existing workouts so polling only notifies for truly NEW ones
+      knownIds.current = new Set(ws.map(w => w.id));
       setNames({
         chisa:   settings.name_chisa   ?? 'Chisa',
         partner: settings.name_partner ?? 'Luc',
@@ -50,7 +55,57 @@ export default function App() {
     }
   }, []);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  // Initial load — seed knownIds so first poll doesn't spam notifications
+  useEffect(() => {
+    loadData().then(() => {
+      // knownIds seeded after first successful fetch (see loadData)
+    });
+  }, [loadData]);
+
+  // Request notification permission once app has loaded
+  useEffect(() => {
+    if (!loading && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, [loading]);
+
+  // Polling — sync every 10 s, notify on new workouts from either person
+  useEffect(() => {
+    if (loading) return;
+
+    const poll = async () => {
+      try {
+        const data = await apiFetch('/workouts');
+
+        // Detect newly added workouts since last poll
+        if (knownIds.current !== null) {
+          const newWorkouts = data.filter(w => !knownIds.current.has(w.id));
+          if (newWorkouts.length > 0 && Notification.permission === 'granted') {
+            newWorkouts.forEach(w => {
+              const n        = namesRef.current;
+              const userName = w.user === 'chisa' ? n.chisa : n.partner;
+              const wt       = WORKOUT_TYPES[w.type];
+              const label    = w.custom_label || wt?.label || w.type;
+              try {
+                new Notification(`${wt?.emoji ?? '💪'} ${userName} logged a workout!`, {
+                  body: `${label} · +${w.points} pts`,
+                  icon: '/icon-192.png',
+                });
+              } catch (_) {}
+            });
+          }
+        }
+
+        knownIds.current = new Set(data.map(w => w.id));
+        setWorkouts(data);
+      } catch (_) {
+        // silent fail — don't break UI on network hiccup
+      }
+    };
+
+    const id = setInterval(poll, 10_000);
+    return () => clearInterval(id);
+  }, [loading]);
 
   const handleSaveWorkout = async (data) => {
     const workout = await apiFetch('/workouts', {
