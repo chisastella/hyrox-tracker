@@ -8,6 +8,7 @@ export const WORKOUT_TYPES = {
   HOME:      { label: 'Home Training',  points: 12, emoji: '🏠',  color: '#a855f7' },
   KICKBOXING:{ label: 'Kickboxing',     points: 10, emoji: '🥊',  color: '#ef4444' },
   WALKING:   { label: 'Walking',        points:  8, emoji: '🚶',  color: '#84cc16', distanceMode: true },
+  STRENGTH:  { label: 'Strength',        points: 10, emoji: '💪',  color: '#a855f7' },
   OTHER:     { label: 'Other',          points: 10, emoji: '🏅',  color: '#94a3b8' },
 };
 
@@ -15,8 +16,8 @@ export const DISTANCE_TYPES = ['RUNNING', 'WALKING'];
 export const DISTANCE_PTS_PER_KM = { RUNNING: 3, WALKING: 2 };
 
 export const USER_WORKOUT_TYPES = {
-  chisa:   ['HYROX', 'CROSSFIT', 'RUNNING', 'SWIMMING', 'WALKING', 'OTHER'],
-  partner: ['HYROX', 'RUNNING', 'HOME', 'KICKBOXING', 'WALKING', 'OTHER'],
+  chisa:   ['HYROX', 'CROSSFIT', 'RUNNING', 'SWIMMING', 'WALKING', 'STRENGTH', 'OTHER'],
+  partner: ['HYROX', 'RUNNING', 'HOME', 'KICKBOXING', 'WALKING', 'STRENGTH', 'OTHER'],
 };
 
 export const USER_META = {
