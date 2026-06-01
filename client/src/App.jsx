@@ -10,7 +10,16 @@ import CountdownTimer from './components/CountdownTimer.jsx';
 import SettingsModal from './components/SettingsModal.jsx';
 import Challenges from './components/Challenges.jsx';
 import { WORKOUT_TYPES } from './constants.js';
-import { apiFetch } from "./api.js";
+const API = '/api';
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(API + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
 
 export default function App() {
   const [workouts,     setWorkouts]     = useState([]);
