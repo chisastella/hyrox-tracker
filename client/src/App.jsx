@@ -174,7 +174,7 @@ export default function App() {
     <div className="min-h-screen bg-gray-950 text-white">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-gray-950/90 backdrop-blur-md border-b border-gray-800/60">
-        <div className="max-w-2xl mx-auto px-4 py-3">
+        <div className="max-w-2xl mx-auto px-4 pb-3 header-safe">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-rose-600 rounded-xl flex items-center justify-center text-lg">
@@ -198,7 +198,7 @@ export default function App() {
       </header>
 
       {/* Main content */}
-      <main className="max-w-2xl mx-auto px-4 py-5 flex flex-col gap-4 pb-10">
+      <main className="max-w-2xl mx-auto px-4 pt-5 flex flex-col gap-4 pb-safe" style={{ paddingBottom: 'max(2.5rem, env(safe-area-inset-bottom))' }}>
         <StreakBanner workouts={workouts} names={names} avatars={avatars} />
         <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
           <div className="flex border-b border-gray-800">

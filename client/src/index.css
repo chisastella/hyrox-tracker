@@ -21,4 +21,15 @@
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
+
+  /* iPhone safe areas (notch / Dynamic Island / home indicator) */
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .header-safe {
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
 }
